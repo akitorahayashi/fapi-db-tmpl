@@ -7,7 +7,7 @@ jobs:
   run-linters:
     runs-on: ubuntu-latest
     env:
-      UV_CACHE_DIR: "./.uv-cache"
+      UV_CACHE_DIR: ./.uv-cache
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

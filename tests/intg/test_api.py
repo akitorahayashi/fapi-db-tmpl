@@ -1,22 +1,27 @@
-import httpx
+"""Integration tests for the FastAPI application."""
+
+import pytest
 
 
-class TestIntgAPI:
-    """
-    Class-based integration tests for API endpoints.
-    Tests run against the local server started by conftest.py.
-    """
+@pytest.mark.asyncio
+async def test_intg_hello_world(async_client):
+    """Integration smoke test for hello world endpoint."""
+    response = await async_client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Hello, World"}
 
-    def test_intg_hello_world(self, api_base_url: str):
-        """Integration smoke test for hello world endpoint."""
-        with httpx.Client(base_url=api_base_url) as client:
-            response = client.get("/")
-            assert response.status_code == 200
-            assert response.json() == {"message": "Hello World"}
 
-    def test_intg_health_check(self, api_base_url: str):
-        """Integration smoke test for health check endpoint."""
-        with httpx.Client(base_url=api_base_url) as client:
-            response = client.get("/health")
-            assert response.status_code == 200
-            assert response.json() == {"status": "ok"}
+@pytest.mark.asyncio
+async def test_intg_health_check(async_client):
+    """Integration smoke test for health check endpoint."""
+    response = await async_client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
+@pytest.mark.asyncio
+async def test_intg_versioned_greeting(async_client):
+    """Versioned greeting endpoint should return personalised responses."""
+    response = await async_client.get("/v1/greetings/Integration")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Hello, Integration"}

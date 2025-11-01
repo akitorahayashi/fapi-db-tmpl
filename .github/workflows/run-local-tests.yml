@@ -16,22 +16,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: .python-version
-
-      - name: Install uv
-        run: pipx install uv
-
-      - name: Install dependencies
-        run: uv sync --frozen
-
-      - name: Install just
-        uses: extractions/setup-just@v2
-
-      - name: Create .env file for CI
-        run: cp .env.example .env
+      - name: Setup environment
+        uses: ./.github/actions/setup
 
       - name: Run local tests
         env:

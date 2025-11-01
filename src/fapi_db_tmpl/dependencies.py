@@ -25,8 +25,14 @@ def get_greeting_service() -> GreetingServiceProtocol:
     settings = get_app_settings()
 
     if settings.use_mock_greeting:
-        from dev.mocks.services.mock_greeting_service import MockGreetingService
+        try:
+            from dev.mocks.services.mock_greeting_service import MockGreetingService
 
-        return MockGreetingService()
+            return MockGreetingService()
+        except ImportError as e:
+            raise RuntimeError(
+                "Mock greeting service is enabled but not found. "
+                "Ensure 'dev' package is in PYTHONPATH for development."
+            ) from e
 
     return GreetingService()

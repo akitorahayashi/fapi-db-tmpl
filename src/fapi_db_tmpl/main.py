@@ -34,7 +34,7 @@ def create_app() -> FastAPI:
 
         return {"status": "ok"}
 
-    print(f"Routes: {[route.path for route in app.router.routes]}")
+    # print(f"Routes: {[route.path for route in app.router.routes]}")
     return app
 
 

@@ -111,17 +111,17 @@ local-test:
 # Run unit tests locally
 unit-test:
     @echo "🚀 Running unit tests..."
-    @uv run pytest tests/unit -v -s
+    @uv run pytest tests/unit
 
 # Run database tests with SQLite
 sqlt-test:
     @echo "🚀 Running database tests with SQLite..."
-    @USE_SQLITE=true uv run pytest tests/db -v -s
+    @USE_SQLITE=true uv run pytest tests/db
 
 # Run integration tests locally
 intg-test:
     @echo "🚀 Running integration tests..."
-    @uv run pytest tests/intg -v -s
+    @uv run pytest tests/intg
 
 # Run all Docker-based tests
 docker-test:
@@ -142,7 +142,7 @@ psql-test:
     @echo "🚀 Starting TEST containers for database test..."
     @USE_SQLITE=false {{TEST_COMPOSE}} up -d --build
     @echo "Running database tests..."
-    -USE_SQLITE=false {{TEST_COMPOSE}} exec fapi-db-tmpl pytest tests/db -v -s
+    -USE_SQLITE=false {{TEST_COMPOSE}} exec fapi-db-tmpl pytest tests/db
     @echo "🔴 Stopping TEST containers..."
     @USE_SQLITE=false {{TEST_COMPOSE}} down
 

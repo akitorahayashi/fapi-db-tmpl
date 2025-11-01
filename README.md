@@ -40,8 +40,9 @@ Runs unit, database, and end-to-end tests using testcontainers for full isolatio
 
 ## API Endpoints
 
-- `GET /` - Hello World
+- `GET /` - Template welcome message powered by the greeting service
 - `GET /health` - Health check
+- `GET /v1/greetings/{name}` - Personalised greeting that honours the mock toggle
 
 ## Development Commands
 
@@ -94,6 +95,17 @@ Configure in `.env`:
 - `POSTGRES_HOST_DB` - Production database name
 - `POSTGRES_DEV_DB` - Development database name
 - `POSTGRES_TEST_DB` - Test database name
+- `FAPI_DB_TMPL_USE_MOCK_GREETING` - When `true`, injects the development mock greeting service for all requests (default: `false`)
+
+### Mockable Greeting Service
+
+The template now ships with a lightweight service abstraction:
+
+- `src/fapi_db_tmpl/api/v1/services/greeting_service.py` contains the production implementation.
+- `dev/mocks/services/mock_greeting_service.py` provides a deterministic mock for demos and tests.
+- `src/fapi_db_tmpl/dependencies.py` selects between the implementations using `FAPI_DB_TMPL_USE_MOCK_GREETING`.
+
+This pattern demonstrates how to introduce protocols and dependency injection early on so that new APIs can swap in mocks without touching production code.
 
 ## Testing
 

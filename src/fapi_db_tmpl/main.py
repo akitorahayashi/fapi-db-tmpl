@@ -1,23 +1,41 @@
-from fastapi import FastAPI
+"""Application entrypoint for the FastAPI database template."""
 
-app = FastAPI(
-    title="FastAPI Template",
-    version="0.1.0",
-    description="A FastAPI template project",
-)
+from fastapi import Depends, FastAPI
 
-
-@app.get("/")
-async def hello_world():
-    """
-    Hello World endpoint.
-    """
-    return {"message": "Hello World"}
+from .api.v1.protocols import GreetingServiceProtocol
+from .api.v1.router import router as v1_router
+from .dependencies import get_app_settings, get_greeting_service
 
 
-@app.get("/health")
-async def health_check():
-    """
-    Simple health check endpoint to confirm the API is running.
-    """
-    return {"status": "ok"}
+def create_app() -> FastAPI:
+    """Instantiate and configure the FastAPI application."""
+
+    settings = get_app_settings()
+
+    app = FastAPI(
+        title=settings.app_name,
+        version=settings.app_version,
+        description="A FastAPI template project with database support.",
+    )
+
+    app.include_router(v1_router)
+
+    @app.get("/")
+    async def hello_world(
+        greeter: GreetingServiceProtocol = Depends(get_greeting_service),
+    ) -> dict[str, str]:
+        """Return a basic greeting sourced from the configured service."""
+
+        return {"message": greeter.generate_greeting("World")}
+
+    @app.get("/health")
+    async def health_check() -> dict[str, str]:
+        """Simple health check endpoint to confirm the API is running."""
+
+        return {"status": "ok"}
+
+    # print(f"Routes: {[route.path for route in app.router.routes]}")
+    return app
+
+
+app = create_app()

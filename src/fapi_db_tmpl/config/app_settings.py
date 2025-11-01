@@ -19,6 +19,12 @@ class AppSettings(BaseSettings):
         title="Application Version",
         description="The version of the application.",
     )
+    use_mock_greeting: bool = Field(
+        default=False,
+        alias="FAPI_DB_TMPL_USE_MOCK_GREETING",
+        title="Use mock greeting service",
+        description="Toggle to inject the development mock greeting service.",
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",

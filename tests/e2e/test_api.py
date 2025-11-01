@@ -12,7 +12,7 @@ class TestE2EAPI:
         with httpx.Client(base_url=api_base_url) as client:
             response = client.get("/")
             assert response.status_code == 200
-            assert response.json() == {"message": "Hello World"}
+            assert response.json() == {"message": "Hello, World"}
 
     def test_e2e_health_check(self, api_base_url: str):
         """End-to-end smoke test for health check endpoint."""
@@ -20,3 +20,11 @@ class TestE2EAPI:
             response = client.get("/health")
             assert response.status_code == 200
             assert response.json() == {"status": "ok"}
+
+    def test_e2e_versioned_greeting(self, api_base_url: str):
+        """End-to-end validation of the versioned greeting endpoint."""
+
+        with httpx.Client(base_url=api_base_url) as client:
+            response = client.get("/v1/greetings/E2E")
+            assert response.status_code == 200
+            assert response.json() == {"message": "Hello, E2E"}

@@ -111,6 +111,7 @@ intg-test:
 
 # Run all Docker-based tests
 docker-test:
+    @just build-test
     @just psql-test
     @just e2e-test
 

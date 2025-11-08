@@ -5,6 +5,8 @@ services:
       - .env
     environment:
       - POSTGRES_DB=${POSTGRES_DEV_DB}
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DEV_DB}" ]
       interval: 30s
@@ -37,3 +39,9 @@ services:
       start_period: 60s
       retries: 10
     restart: unless-stopped
+
+volumes:
+  postgres-db:
+    driver: local
+    name: ${FAPI_TEMPL_PROJECT_NAME}-postgres-db
+    external: false

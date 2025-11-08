@@ -26,7 +26,8 @@ FROM base as dev-deps
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Install all dependencies, including development ones
-RUN uv sync
+RUN --mount=type=cache,target=/root/.cache \
+  uv sync
 
 
 # ==============================================================================

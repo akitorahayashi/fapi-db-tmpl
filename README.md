@@ -65,9 +65,8 @@ When tests fail, container logs are automatically included in the failure report
 
 ## API Endpoints
 
-- `GET /` - Welcome message
 - `GET /health` - Health check
-- `GET /v1/greetings/{name}` - Personalized greeting
+- `GET /greetings/{name}` - Personalized greeting
 
 ## Development Commands
 

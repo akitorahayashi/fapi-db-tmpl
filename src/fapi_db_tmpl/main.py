@@ -2,9 +2,9 @@
 
 from fastapi import Depends, FastAPI
 
-from .api.v1.protocols import GreetingServiceProtocol
-from .api.v1.router import router as v1_router
-from .dependencies import get_app_settings, get_greeting_service
+from .api.protocols import GreetingServiceProtocol
+from .api.router import router as v1_router
+from .api.dependencies import get_app_settings, get_greeting_service
 
 
 def create_app() -> FastAPI:

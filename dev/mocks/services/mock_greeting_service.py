@@ -1,6 +1,6 @@
 """Mock greeting service for local development and tests."""
 
-from src.fapi_db_tmpl.api.v1.protocols import GreetingServiceProtocol
+from src.fapi_db_tmpl.api.protocols import GreetingServiceProtocol
 
 
 class MockGreetingService(GreetingServiceProtocol):

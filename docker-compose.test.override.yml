@@ -3,14 +3,14 @@ services:
     environment:
       - POSTGRES_DB=${POSTGRES_TEST_DB}
     ports:
-      - "${FAPI_TEMPL_HOST_BIND_IP:-127.0.0.1}:0:5432"
+      - "${FAPI_DB_TMPL_HOST_BIND_IP:-127.0.0.1}:0:5432"
     volumes: !override []
 
   fapi-db-tmpl:
     build:
       target: development
     ports: !override
-      - "${FAPI_TEMPL_HOST_BIND_IP:-127.0.0.1}:0:8000"
+      - "${FAPI_DB_TMPL_HOST_BIND_IP:-127.0.0.1}:0:8000"
     environment:
       - POSTGRES_DB=${POSTGRES_TEST_DB}
       - USE_SQLITE=false

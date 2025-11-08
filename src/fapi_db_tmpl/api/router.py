@@ -3,8 +3,8 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from src.fapi_db_tmpl.api.v1.protocols import GreetingServiceProtocol
-from src.fapi_db_tmpl.dependencies import get_greeting_service
+from src.fapi_db_tmpl.api.protocols import GreetingServiceProtocol
+from src.fapi_db_tmpl.api.dependencies import get_greeting_service
 
 router = APIRouter(prefix="/v1", tags=["greetings"])
 

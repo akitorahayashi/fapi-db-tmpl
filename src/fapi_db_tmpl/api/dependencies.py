@@ -3,9 +3,9 @@
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
-from .api.v1.protocols import GreetingServiceProtocol
-from .api.v1.services.greeting_service import GreetingService
-from .config.app_settings import AppSettings
+from .protocols import GreetingServiceProtocol
+from .services.greeting_service import GreetingService
+from ..config.app_settings import AppSettings
 
 if TYPE_CHECKING:  # pragma: no cover - import only for typing
     pass

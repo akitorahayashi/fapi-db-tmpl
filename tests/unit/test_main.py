@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from src.fapi_db_tmpl.dependencies import get_app_settings, get_greeting_service
+from src.fapi_db_tmpl.api.dependencies import get_app_settings, get_greeting_service
 from src.fapi_db_tmpl.main import create_app
 
 

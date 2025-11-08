@@ -8,7 +8,7 @@ services:
     build:
       target: development
     ports: !override
-      - "${FAPI_TEMPL_HOST_BIND_IP}:${FAPI_TEMPL_DEV_PORT}:8000"
+      - "${FAPI_DB_TMPL_HOST_BIND_IP}:${FAPI_DB_TMPL_DEV_PORT}:8000"
     environment:
       - POSTGRES_DB=${POSTGRES_DEV_DB}
     volumes:

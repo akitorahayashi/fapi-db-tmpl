@@ -83,11 +83,11 @@ alembic/             # Database migrations
 
 Configure in `.env`:
 
-- `FAPI_TEMPL_PROJECT_NAME` - Project name for Docker volumes (default: fastapi-tmpl)
-- `FAPI_TEMPL_HOST_BIND_IP` - IP to bind (default: 127.0.0.1)
-- `FAPI_TEMPL_HOST_PORT` - Port to bind (default: 8000)
-- `FAPI_TEMPL_DEV_PORT` - Development port (default: 8001)
-- `FAPI_TEMPL_TEST_PORT` - Test port (default: 8002). Automated pytest runs ignore this value and allocate dynamic ports via testcontainers.
+- `FAPI_DB_TMPL_PROJECT_NAME` - Project name for Docker volumes (default: fastapi-tmpl)
+- `FAPI_DB_TMPL_HOST_BIND_IP` - IP to bind (default: 127.0.0.1)
+- `FAPI_DB_TMPL_HOST_PORT` - Port to bind (default: 8000)
+- `FAPI_DB_TMPL_DEV_PORT` - Development port (default: 8001)
+- `FAPI_DB_TMPL_TEST_PORT` - Test port (default: 8002). Automated pytest runs ignore this value and allocate dynamic ports via testcontainers.
 - `POSTGRES_HOST` - PostgreSQL host (default: db)
 - `POSTGRES_PORT` - PostgreSQL port (default: 5432)
 - `POSTGRES_USER` - PostgreSQL username
@@ -211,8 +211,8 @@ Run `just format` and `just lint` before committing.
 
 ## Volume Management
 
-Project volumes are prefixed with `FAPI_TEMPL_PROJECT_NAME` to avoid conflicts:
+Project volumes are prefixed with `FAPI_DB_TMPL_PROJECT_NAME` to avoid conflicts:
 
-- `${FAPI_TEMPL_PROJECT_NAME}-postgres-db-prod`: PostgreSQL data persistence
+- `${FAPI_DB_TMPL_PROJECT_NAME}-postgres-db-prod`: PostgreSQL data persistence
 - Volumes are marked as `external: false` for proper cleanup
 - Each environment (dev/prod/test) uses separate Docker Compose project names

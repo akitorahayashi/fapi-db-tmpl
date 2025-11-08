@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
       target: production
     ports:
-      - "${FAPI_TEMPL_HOST_BIND_IP}:${FAPI_TEMPL_HOST_PORT}:8000"
+      - "${FAPI_DB_TMPL_HOST_BIND_IP}:${FAPI_DB_TMPL_HOST_PORT}:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -40,5 +40,5 @@ services:
 volumes:
   postgres-db:
     driver: local
-    name: ${FAPI_TEMPL_PROJECT_NAME}-postgres-db-prod
+    name: ${FAPI_DB_TMPL_PROJECT_NAME}-postgres-db-prod
     external: false

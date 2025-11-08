@@ -4,7 +4,7 @@
 
 set dotenv-load
 
-PROJECT_NAME := env("FAPI_TEMPL_PROJECT_NAME", "fastapi-tmpl")
+PROJECT_NAME := env("FAPI_DB_TMPL_PROJECT_NAME", "fastapi-tmpl")
 POSTGRES_IMAGE := env("POSTGRES_IMAGE", "postgres:16-alpine")
 
 DEV_PROJECT_NAME := PROJECT_NAME + "-dev"

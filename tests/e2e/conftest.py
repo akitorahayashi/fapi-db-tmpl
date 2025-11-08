@@ -46,7 +46,7 @@ def api_base_url(api_image, postgres_container, e2e_network):
         "POSTGRES_USER": postgres_container.username,
         "POSTGRES_PASSWORD": postgres_container.password,
         "POSTGRES_DB": postgres_container.dbname,
-        "USE_MOCK_GREETING": "true",
+        "FAPI_DB_TMPL_USE_MOCK_GREETING": "true",
     }
     api_wait_strategy = HttpWaitStrategy(8000, "/health").for_status_code(200)
     with (

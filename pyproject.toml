@@ -36,7 +36,7 @@ python_files = "test_*.py"
 asyncio_mode = "auto"
 addopts = "-v -s --tb=short"
 filterwarnings = [
-    "ignore::DeprecationWarning",
+    "ignore::DeprecationWarning:testcontainers",
 ]
 
 [tool.black]

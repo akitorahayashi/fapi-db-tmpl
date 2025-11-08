@@ -64,7 +64,6 @@ COPY --from=dev-deps /app/.venv ./.venv
 COPY --chown=appuser:appgroup src/ ./src
 COPY --chown=appuser:appgroup alembic/ ./alembic
 COPY --chown=appuser:appgroup dev/ ./dev
-COPY --chown=appuser:appgroup tests/ ./tests
 COPY --chown=appuser:appgroup pyproject.toml entrypoint.sh ./
 
 RUN chmod +x entrypoint.sh

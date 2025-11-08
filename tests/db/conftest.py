@@ -46,7 +46,6 @@ async def db_session(db_url: str) -> AsyncGenerator[Session, None]:
 async def client(db_session: Session) -> AsyncGenerator[AsyncClient, None]:
     from src.fapi_db_tmpl.api.main import app
 
-    # If needed, override DB session dependency here
     from src.fapi_db_tmpl.db.database import create_db_session
 
     app.dependency_overrides[create_db_session] = lambda: db_session

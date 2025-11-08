@@ -13,7 +13,6 @@ TEST_PROJECT_NAME := PROJECT_NAME + "-test"
 
 PROD_COMPOSE := "docker compose -f docker-compose.yml --project-name " + PROD_PROJECT_NAME
 DEV_COMPOSE  := "docker compose -f docker-compose.yml -f docker-compose.dev.override.yml --project-name " + DEV_PROJECT_NAME
-TEST_COMPOSE := "docker compose -f docker-compose.yml -f docker-compose.test.override.yml --project-name " + TEST_PROJECT_NAME
 
 # default target
 default: help
@@ -125,9 +124,8 @@ intg-test:
 
 # Run all Docker-based tests
 docker-test:
-  @just build-test
-  @just psql-test
-  @just e2e-test
+    @just psql-test
+    @just e2e-test
 
 # Build Docker image to verify build process
 build-test:
@@ -140,11 +138,7 @@ build-test:
 # Run database tests with PostgreSQL
 psql-test:
     @echo "🚀 Starting TEST containers for database test..."
-    @USE_SQLITE=false {{TEST_COMPOSE}} up -d --build
-    @echo "Running database tests..."
-    -USE_SQLITE=false {{TEST_COMPOSE}} exec fapi-db-tmpl pytest tests/db
-    @echo "🔴 Stopping TEST containers..."
-    @USE_SQLITE=false {{TEST_COMPOSE}} down
+    @USE_SQLITE=false uv run pytest tests/db
 
 # Run e2e tests against containerized application stack
 e2e-test:

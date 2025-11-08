@@ -36,7 +36,7 @@ The API will be available at `http://127.0.0.1:8000` (configurable in `.env`).
 just test
 ```
 
-Runs unit, database, and end-to-end tests using testcontainers for full isolation.
+Runs unit, database, and end-to-end tests. Docker-backed suites are orchestrated through `pytest-testcontainers`, so the Compose stack is started once and shared across the session.
 
 ## API Endpoints
 
@@ -54,8 +54,8 @@ Runs unit, database, and end-to-end tests using testcontainers for full isolatio
 | `just test` | Run all tests |
 | `just unit-test` | Run unit tests only |
 | `just sqlt-test` | Run database tests with SQLite |
-| `just pstg-test` | Run database tests with PostgreSQL |
-| `just e2e-test` | Run end-to-end tests only |
+| `just psql-test` | Run database tests with PostgreSQL via `pytest-testcontainers` |
+| `just e2e-test` | Run end-to-end tests via `pytest-testcontainers` |
 | `just format` | Format code with Black and fix with Ruff |
 | `just lint` | Check code format and lint |
 | `just rebuild` | Rebuild and restart API container |
@@ -87,7 +87,7 @@ Configure in `.env`:
 - `FAPI_TEMPL_HOST_BIND_IP` - IP to bind (default: 127.0.0.1)
 - `FAPI_TEMPL_HOST_PORT` - Port to bind (default: 8000)
 - `FAPI_TEMPL_DEV_PORT` - Development port (default: 8001)
-- `FAPI_TEMPL_TEST_PORT` - Test port (default: 8002)
+- `FAPI_TEMPL_TEST_PORT` - Test port (default: 8002). Automated pytest runs ignore this value and allocate dynamic ports via testcontainers.
 - `POSTGRES_HOST` - PostgreSQL host (default: db)
 - `POSTGRES_PORT` - PostgreSQL port (default: 5432)
 - `POSTGRES_USER` - PostgreSQL username
@@ -115,7 +115,13 @@ The project includes three types of tests:
 - **Database Tests**: PostgreSQL integration tests using testcontainers
 - **E2E Tests**: Full stack tests using Docker Compose via testcontainers
 
-All tests run independently without external dependencies.
+All tests run independently without external dependencies. To execute the Docker-backed suites manually, run:
+
+```bash
+USE_SQLITE=false uv run pytest tests/db tests/e2e
+```
+
+`pytest-testcontainers` will provision the Compose stack, expose dynamic host ports, and tear everything down automatically when the session ends.
 
 ## Deployment
 

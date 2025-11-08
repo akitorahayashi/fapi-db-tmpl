@@ -4,16 +4,18 @@ import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from src.fapi_db_tmpl.main import app as fastapi_app
 
-
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def app() -> FastAPI:
-    """Return the FastAPI application under test."""
+    import os
+
+    os.environ["USE_MOCK_GREETING"] = "true"
+    from src.fapi_db_tmpl.api.main import app as fastapi_app
+
     return fastapi_app
 
 
-@pytest.fixture()
+@pytest.fixture
 async def async_client(app: FastAPI) -> AsyncClient:
     """Provide an async HTTP client for exercising the API."""
     transport = ASGITransport(app=app)

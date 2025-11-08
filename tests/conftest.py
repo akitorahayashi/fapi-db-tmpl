@@ -1,70 +1,108 @@
-"""Shared pytest fixtures for orchestrating the Docker-based test stack."""
-
-from __future__ import annotations
+"""Shared pytest fixtures and configuration for all tests."""
 
 import os
-import time
 from collections.abc import Generator
-from pathlib import Path
 from typing import Any
 
-import httpx
 import pytest
-from testcontainers.compose import DockerCompose
+from dotenv import load_dotenv
 
-SERVICE_API = "fapi-db-tmpl"
-SERVICE_DB = "db"
-API_INTERNAL_PORT = 8000
-DB_INTERNAL_PORT = 5432
+# Constants
+SQLITE_TEST_DB_PATH = "./test_db.sqlite3"
 
 
-def _wait_for_http(url: str, timeout: float = 120.0, interval: float = 2.0) -> None:
-    """Poll an HTTP endpoint until it returns a successful response."""
+# Lazy imports to avoid DBSettings validation issues
+def _get_db_imports():
+    """Lazy import of database-related modules to avoid validation issues."""
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import Session, sessionmaker
 
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        try:
-            response = httpx.get(url, timeout=5.0)
-            if response.status_code < 500:
-                return
-        except httpx.RequestError:
-            pass
-        time.sleep(interval)
-    raise TimeoutError(
-        f"Service at {url} did not become ready within {timeout} seconds"
+    from src.fapi_db_tmpl.api.main import app
+    from src.fapi_db_tmpl.db.database import Base, create_db_session
+
+    return (
+        create_engine,
+        Session,
+        sessionmaker,
+        Base,
+        create_db_session,
+        app,
     )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_environment():
+    """Setup test environment with dotenv loading."""
+    load_dotenv()
 
 
 @pytest.fixture(scope="session")
-def docker_test_stack(
-    pytestconfig: pytest.Config,
-) -> Generator[dict[str, Any], None, None]:
-    """Start the Docker Compose stack once for the entire pytest session."""
+def db_engine(request: pytest.FixtureRequest) -> Generator[Any, None, None]:
+    """
+    Fixture that provides DB engine for the entire test session.
 
-    project_dir = Path(pytestconfig.rootpath)
-    compose_files = ["docker-compose.yml", "docker-compose.test.override.yml"]
+    USE_SQLITE=true: Uses SQLite for fast, isolated testing
+    USE_SQLITE=false: Uses PostgreSQL container for realistic testing
+    """
+    (
+        create_engine,
+        Session,
+        sessionmaker,
+        Base,
+        create_db_session,
+        app,
+    ) = _get_db_imports()
 
-    compose = DockerCompose(
-        str(project_dir),
-        compose_file_name=compose_files,
-        pull=False,
-    )
-
-    with compose:
-        compose.start()
-
-        api_host = compose.get_service_host(SERVICE_API, API_INTERNAL_PORT)
-        api_port = compose.get_service_port(SERVICE_API, API_INTERNAL_PORT)
-        db_host = compose.get_service_host(SERVICE_DB, DB_INTERNAL_PORT)
-        db_port = compose.get_service_port(SERVICE_DB, DB_INTERNAL_PORT)
-
-        _wait_for_http(
-            f"http://{api_host}:{api_port}/health", timeout=180.0, interval=3.0
+    if os.environ.get("USE_SQLITE", "true").lower() == "true":
+        # SQLite case - fast, file-based database
+        engine = create_engine(
+            f"sqlite:///{SQLITE_TEST_DB_PATH}",
+            connect_args={"check_same_thread": False},
         )
 
-        os.environ.setdefault("USE_SQLITE", "false")
+        # Create all tables from models
+        Base.metadata.create_all(bind=engine)
 
-        yield {
-            "api": {"host": api_host, "port": api_port},
-            "db": {"host": db_host, "port": db_port},
-        }
+        yield engine
+
+        # Clean up: drop tables and remove file
+        Base.metadata.drop_all(bind=engine)
+        if os.path.exists(SQLITE_TEST_DB_PATH):
+            os.remove(SQLITE_TEST_DB_PATH)
+
+        engine.dispose()
+        return
+
+    # PostgreSQL case - this should be handled by db-specific conftest.py
+    pytest.skip("PostgreSQL testing should be done in db/ or e2e/ directories")
+
+
+@pytest.fixture
+def db_session(db_engine: Any) -> Generator[Any, None, None]:
+    """
+    Provides a transaction-scoped database session for each test function.
+
+    Each test gets a clean database state through transaction rollback,
+    ensuring test isolation without database recreation.
+    """
+    (
+        create_engine,
+        Session,
+        sessionmaker,
+        Base,
+        create_db_session,
+        app,
+    ) = _get_db_imports()
+
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=db_engine)
+    db = SessionLocal()
+
+    # Override FastAPI's dependency injection for testing
+    app.dependency_overrides[create_db_session] = lambda: db
+
+    try:
+        yield db
+    finally:
+        db.rollback()  # Ensure clean state for next test
+        db.close()
+        app.dependency_overrides.pop(create_db_session, None)

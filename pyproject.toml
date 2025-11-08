@@ -1,6 +1,6 @@
 [project]
 name = "fapi-db-tmpl"
-version = "1.0.0"
+version = "0.1.0"
 description = "A production-ready FastAPI project template with database."
 authors = [{ name = "akitorahayashi" }]
 requires-python = ">=3.12,<4.0"
@@ -52,6 +52,7 @@ exclude = '''
     | env
     | build
     | dist
+    | reference
     | .*/(bin|lib|share|etc)
     | .*/pyvenv\.cfg
 )/
@@ -68,6 +69,7 @@ exclude = [
     ".venv",
     "venv",
     "env",
+    "reference",
     "*/bin/**",
     "*/lib/**",
     "*/share/**",

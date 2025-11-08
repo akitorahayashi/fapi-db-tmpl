@@ -3,26 +3,26 @@
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
-from .protocols import GreetingServiceProtocol
-from .services.greeting_service import GreetingService
-from ..config.app_settings import AppSettings
+from ..config.api_settings import ApiSettings
+from ..protocols import GreetingServiceProtocol
+from ..services.greeting_service import GreetingService
 
 if TYPE_CHECKING:  # pragma: no cover - import only for typing
     pass
 
 
 @lru_cache()
-def get_app_settings() -> AppSettings:
+def get_api_settings() -> ApiSettings:
     """Load and cache strongly-typed application settings."""
 
-    return AppSettings()
+    return ApiSettings()
 
 
 @lru_cache()
 def get_greeting_service() -> GreetingServiceProtocol:
     """Resolve the greeting service, optionally swapping in the mock implementation."""
 
-    settings = get_app_settings()
+    settings = get_api_settings()
 
     if settings.use_mock_greeting:
         try:

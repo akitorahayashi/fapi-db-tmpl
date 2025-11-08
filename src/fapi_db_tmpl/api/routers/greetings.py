@@ -1,12 +1,12 @@
-"""Version 1 HTTP routes."""
+"""Greeting API routes."""
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from src.fapi_db_tmpl.api.protocols import GreetingServiceProtocol
-from src.fapi_db_tmpl.api.dependencies import get_greeting_service
+from ...protocols import GreetingServiceProtocol
+from ..dependencies import get_greeting_service
 
-router = APIRouter(prefix="/v1", tags=["greetings"])
+router = APIRouter(prefix="", tags=["greetings"])
 
 
 class GreetingResponse(BaseModel):

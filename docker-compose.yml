@@ -4,11 +4,9 @@ services:
     env_file:
       - .env
     environment:
-      - POSTGRES_DB=${POSTGRES_HOST_DB}
-    volumes:
-      - postgres-db:/var/lib/postgresql/data
+      - POSTGRES_DB=${POSTGRES_DEV_DB}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_HOST_DB}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DEV_DB}" ]
       interval: 30s
       timeout: 10s
       retries: 10
@@ -18,9 +16,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: production
+      target: development
     ports:
-      - "${FAPI_DB_TMPL_HOST_BIND_IP}:${FAPI_DB_TMPL_HOST_PORT}:8000"
+      - "${FAPI_DB_TMPL_HOST_BIND_IP}:${FAPI_DB_TMPL_DEV_PORT}:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -28,7 +26,10 @@ services:
       - .env
     environment:
       - USE_SQLITE=false
-      - POSTGRES_DB=${POSTGRES_HOST_DB}
+      - POSTGRES_DB=${POSTGRES_DEV_DB}
+    volumes:
+      - .:/app
+      - /app/.venv
     healthcheck:
       test: [ "CMD", "python", "-c", "import sys, urllib.request; sys.exit(0) if urllib.request.urlopen('http://localhost:8000/health').getcode() == 200 else sys.exit(1)" ]
       interval: 30s
@@ -36,9 +37,3 @@ services:
       start_period: 60s
       retries: 10
     restart: unless-stopped
-
-volumes:
-  postgres-db:
-    driver: local
-    name: ${FAPI_DB_TMPL_PROJECT_NAME}-postgres-db-prod
-    external: false

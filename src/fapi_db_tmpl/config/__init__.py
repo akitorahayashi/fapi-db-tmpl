@@ -1,7 +1,7 @@
-from .app_settings import AppSettings
+from .api_settings import ApiSettings
 from .db_settings import DBSettings
 
+api_settings = ApiSettings()
 db_settings = DBSettings()
-app_settings = AppSettings()
 
-__all__ = ["db_settings", "app_settings"]
+__all__ = ["api_settings", "db_settings"]

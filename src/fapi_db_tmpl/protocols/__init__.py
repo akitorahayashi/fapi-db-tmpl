@@ -1,4 +1,4 @@
-"""Protocols for API v1 services."""
+"""Protocols for API services."""
 
 from .greeting_service_protocol import GreetingServiceProtocol
 

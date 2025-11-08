@@ -1,30 +1,24 @@
-import httpx
+"""End-to-end tests for the FastAPI application."""
+
+import pytest
 
 
 class TestE2EAPI:
     """
     Class-based end-to-end tests for API endpoints.
-    Tests run against the live containerized application stack.
+    Tests run against the application with real database.
     """
 
-    def test_e2e_hello_world(self, api_base_url: str):
-        """End-to-end smoke test for hello world endpoint."""
-        with httpx.Client(base_url=api_base_url) as client:
-            response = client.get("/")
-            assert response.status_code == 200
-            assert response.json() == {"message": "Hello, World"}
-
-    def test_e2e_health_check(self, api_base_url: str):
+    @pytest.mark.asyncio
+    async def test_e2e_health_check(self, async_client):
         """End-to-end smoke test for health check endpoint."""
-        with httpx.Client(base_url=api_base_url) as client:
-            response = client.get("/health")
-            assert response.status_code == 200
-            assert response.json() == {"status": "ok"}
+        response = await async_client.get("/health")
+        assert response.status_code == 200
+        assert response.json() == {"status": "ok"}
 
-    def test_e2e_versioned_greeting(self, api_base_url: str):
-        """End-to-end validation of the versioned greeting endpoint."""
-
-        with httpx.Client(base_url=api_base_url) as client:
-            response = client.get("/v1/greetings/E2E")
-            assert response.status_code == 200
-            assert response.json() == {"message": "Hello, E2E"}
+    @pytest.mark.asyncio
+    async def test_e2e_versioned_greeting(self, async_client):
+        """End-to-end validation of the greeting endpoint."""
+        response = await async_client.get("/greetings/E2E")
+        assert response.status_code == 200
+        assert response.json() == {"message": "Hello, E2E"}

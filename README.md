@@ -1,212 +1,107 @@
-# FastAPI Template
+# FastAPI Database Template
 
-A production-ready FastAPI template with modern development tooling, comprehensive testing, and Docker containerization.
+A production-ready FastAPI template with Docker, PostgreSQL, and comprehensive testing.
 
 ## Features
 
-- **FastAPI** - Modern, fast web framework for building APIs
-- **Docker** - Containerized development and deployment
-- **uv** - Ultra-fast Python package installer and resolver
-- **Pytest** - Comprehensive testing with testcontainers
-- **Code Quality** - Black (formatter) + Ruff (linter)
-- **Database** - PostgreSQL with Alembic migrations
-- **justfile** - Unified development commands
+- FastAPI framework
+- Docker containerization
+- PostgreSQL with Alembic migrations
+- Pytest with testcontainers
+- Code quality tools (Black, Ruff)
+- Development commands via justfile
 
 ## Quick Start
 
-### 1. Setup Environment
+### Setup
 
 ```bash
 just setup
 ```
 
-This installs dependencies with uv and creates `.env` file from `.env.example`.
-
-### 2. Start Development Server
+### Run
 
 ```bash
 just up
 ```
 
-The API will be available at `http://127.0.0.1:8000` (configurable in `.env`).
+API available at `http://127.0.0.1:8000`
 
-### 3. Run Tests
+### Testing
+
+This project uses advanced testcontainers features for reliable, isolated testing:
+
+#### Test Setup
+
+- **Docker Compose Integration**: Tests run against real PostgreSQL and API containers
+- **Robust Wait Strategies**: Uses `LogMessageWaitStrategy` to wait for database migrations completion
+- **Clean Dependency Injection**: Database connections are passed directly to test fixtures without environment pollution
+- **Automatic Debug Logging**: Failed tests automatically include container logs for easier troubleshooting
+
+#### Running Tests
 
 ```bash
+# Run all tests
 just test
+
+# Run database tests only
+just test-db
+
+# Run integration tests
+just test-intg
+
+# Run end-to-end tests
+just test-e2e
 ```
 
-Runs unit, database, and end-to-end tests using testcontainers for full isolation.
+#### Test Architecture
+
+- **Unit Tests** (`tests/unit/`): Test individual components in isolation
+- **Database Tests** (`tests/db/`): Test database operations with real PostgreSQL
+- **Integration Tests** (`tests/intg/`): Test API endpoints with mocked dependencies
+- **E2E Tests** (`tests/e2e/`): Test complete user workflows with full stack
+
+When tests fail, container logs are automatically included in the failure report for debugging.
 
 ## API Endpoints
 
-- `GET /` - Template welcome message powered by the greeting service
 - `GET /health` - Health check
-- `GET /v1/greetings/{name}` - Personalised greeting that honours the mock toggle
+- `GET /greetings/{name}` - Personalized greeting
 
 ## Development Commands
 
 | Command | Description |
 |---------|-------------|
-| `just setup` | Initialize environment files |
+| `just setup` | Initialize environment |
 | `just up` | Start development containers |
-| `just down` | Stop development containers |
+| `just down` | Stop containers |
 | `just test` | Run all tests |
-| `just unit-test` | Run unit tests only |
-| `just sqlt-test` | Run database tests with SQLite |
-| `just pstg-test` | Run database tests with PostgreSQL |
-| `just e2e-test` | Run end-to-end tests only |
-| `just format` | Format code with Black and fix with Ruff |
-| `just lint` | Check code format and lint |
-| `just rebuild` | Rebuild and restart API container |
-| `just clean` | Remove cache files and .venv |
+| `just format` | Format code |
+| `just lint` | Lint code |
+| `just rebuild` | Rebuild API container |
 
 ## Project Structure
 
 ```
-src/
-├── api/v1/           # API version 1
-├── config/           # Configuration
-├── db/               # Database models
-├── middlewares/      # Custom middleware
-└── main.py          # FastAPI application
+src/fapi_db_tmpl/
+├── api/          # API routes and services
+├── config/       # Configuration
+├── db/           # Database models
+└── main.py       # Application entry
 
-tests/
-├── unit/            # Unit tests (TestClient)
-├── db/              # Database tests (testcontainers)
-└── e2e/             # End-to-end tests (testcontainers + HTTP)
+tests/            # Comprehensive test suite
+├── unit/         # Unit tests
+├── db/           # Database integration tests
+├── intg/         # Integration tests
+└── e2e/          # End-to-end tests
 
-alembic/             # Database migrations
+alembic/          # Database migrations
 ```
 
 ## Environment Variables
 
-Configure in `.env`:
+Key variables in `.env`:
 
-- `FAPI_TEMPL_PROJECT_NAME` - Project name for Docker volumes (default: fastapi-tmpl)
-- `FAPI_TEMPL_HOST_BIND_IP` - IP to bind (default: 127.0.0.1)
-- `FAPI_TEMPL_HOST_PORT` - Port to bind (default: 8000)
-- `FAPI_TEMPL_DEV_PORT` - Development port (default: 8001)
-- `FAPI_TEMPL_TEST_PORT` - Test port (default: 8002)
-- `POSTGRES_HOST` - PostgreSQL host (default: db)
-- `POSTGRES_PORT` - PostgreSQL port (default: 5432)
-- `POSTGRES_USER` - PostgreSQL username
-- `POSTGRES_PASSWORD` - PostgreSQL password
-- `POSTGRES_HOST_DB` - Production database name
-- `POSTGRES_DEV_DB` - Development database name
-- `POSTGRES_TEST_DB` - Test database name
-- `FAPI_DB_TMPL_USE_MOCK_GREETING` - When `true`, injects the development mock greeting service for all requests (default: `false`)
-
-### Mockable Greeting Service
-
-The template now ships with a lightweight service abstraction:
-
-- `src/fapi_db_tmpl/api/v1/services/greeting_service.py` contains the production implementation.
-- `dev/mocks/services/mock_greeting_service.py` provides a deterministic mock for demos and tests.
-- `src/fapi_db_tmpl/dependencies.py` selects between the implementations using `FAPI_DB_TMPL_USE_MOCK_GREETING`.
-
-This pattern demonstrates how to introduce protocols and dependency injection early on so that new APIs can swap in mocks without touching production code.
-
-## Testing
-
-The project includes three types of tests:
-
-- **Unit Tests**: Fast tests using FastAPI TestClient
-- **Database Tests**: PostgreSQL integration tests using testcontainers
-- **E2E Tests**: Full stack tests using Docker Compose via testcontainers
-
-All tests run independently without external dependencies.
-
-## Deployment
-
-### Production
-
-```bash
-just up-prod
-```
-
-Uses production environment configuration from `.env`.
-
-## Docker Architecture
-
-The project uses a sophisticated 5-stage multi-stage Docker build optimized for uv:
-
-### Build Stages
-
-1. **`base`** - Foundation stage with uv installation and dependency files
-   - Installs uv package manager
-   - Copies `pyproject.toml`, `uv.lock`, and `README.md`
-   - Shared base for dependency installation stages
-
-2. **`dev-deps`** - Development dependencies
-   - Extends base stage
-   - Installs system tools (curl for debugging)
-   - Runs `uv sync` to install all dependencies including dev dependencies
-   - Creates complete virtual environment for development and testing
-
-3. **`prod-deps`** - Production dependencies only
-   - Extends base stage  
-   - Runs `uv sync --no-dev` to install only production dependencies
-   - Creates lean virtual environment for production
-
-4. **`development`** - Development runtime environment
-   - Based on fresh Python 3.12 slim image
-   - Installs PostgreSQL client and development tools
-   - Creates non-root user for security
-   - Copies virtual environment from `dev-deps` stage
-   - Includes all application code and development utilities
-   - Suitable for local development and CI/CD testing
-
-5. **`production`** - Production runtime environment  
-   - Based on fresh Python 3.12 slim image
-   - Minimal system dependencies (PostgreSQL client only)
-   - Creates non-root user for security
-   - Copies lean virtual environment from `prod-deps` stage
-   - Includes only necessary application code
-   - Optimized for production deployment
-
-### Key Benefits
-
-- **Fast Builds**: uv's speed combined with Docker layer caching
-- **Security**: Non-root user execution in runtime stages
-- **Optimization**: Separate dev/prod dependency trees
-- **Caching**: Aggressive use of Docker build cache for dependencies
-- **Minimal Attack Surface**: Production image contains only essential components
-
-### Build Targets
-
-```bash
-# Build development image
-docker build --target development -t myapp:dev .
-
-# Build production image  
-docker build --target production -t myapp:prod .
-
-# Test build (validates production build without keeping image)
-just build-test
-```
-
-## Adding Database Models
-
-1. Create models in `src/db/models/`
-2. Generate migration: `alembic revision --autogenerate -m "description"`
-3. Apply migration: `alembic upgrade head`
-
-Database migrations run automatically in Docker containers.
-
-## Code Quality
-
-- **Black**: Code formatting
-- **Ruff**: Fast Python linter
-- **uv**: Ultra-fast dependency management
-- **Pytest**: Testing framework with testcontainers
-
-Run `just format` and `just lint` before committing.
-
-## Volume Management
-
-Project volumes are prefixed with `FAPI_TEMPL_PROJECT_NAME` to avoid conflicts:
-
-- `${FAPI_TEMPL_PROJECT_NAME}-postgres-db-prod`: PostgreSQL data persistence
-- Volumes are marked as `external: false` for proper cleanup
-- Each environment (dev/prod/test) uses separate Docker Compose project names
+- `FAPI_DB_TMPL_HOST_PORT` - API port (default: 8000)
+- `POSTGRES_*` - Database configuration
+- `FAPI_DB_TMPL_USE_MOCK_GREETING` - Use mock service (default: false)

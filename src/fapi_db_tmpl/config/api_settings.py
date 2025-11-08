@@ -2,20 +2,18 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class AppSettings(BaseSettings):
+class ApiSettings(BaseSettings):
     """
     General application settings loaded from environment variables.
     """
 
-    app_name: str = Field(
-        default="FastAPI Template",
-        alias="APP_NAME",
+    api_name: str = Field(
+        default="fapi-db-tmpl",
         title="Application Name",
         description="The name of the application.",
     )
-    app_version: str = Field(
+    api_version: str = Field(
         default="0.1.0",
-        alias="APP_VERSION",
         title="Application Version",
         description="The version of the application.",
     )

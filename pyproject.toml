@@ -1,6 +1,6 @@
 [project]
 name = "fapi-db-tmpl"
-version = "1.0.0"
+version = "0.1.0"
 description = "A production-ready FastAPI project template with database."
 authors = [{ name = "akitorahayashi" }]
 requires-python = ">=3.12,<4.0"
@@ -22,6 +22,7 @@ dev = [
     "python-dotenv>=1.0.0,<2.0.0",
     "black>=25.1.0",
     "ruff>=0.12.10",
+    "testcontainers[compose]>=4.8.0,<5.0.0",
 ]
 
 [build-system]
@@ -35,6 +36,9 @@ packages = ["src/fapi_db_tmpl"]
 python_files = "test_*.py"
 asyncio_mode = "auto"
 addopts = "-v -s --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
 
 [tool.black]
 target-version = ['py312']
@@ -48,6 +52,7 @@ exclude = '''
     | env
     | build
     | dist
+    | reference
     | .*/(bin|lib|share|etc)
     | .*/pyvenv\.cfg
 )/
@@ -64,6 +69,7 @@ exclude = [
     ".venv",
     "venv",
     "env",
+    "reference",
     "*/bin/**",
     "*/lib/**",
     "*/share/**",

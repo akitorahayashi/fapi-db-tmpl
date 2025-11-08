@@ -8,11 +8,10 @@ FROM python:3.12-slim as base
 WORKDIR /app
 
 # Install uv
-RUN --mount=type=cache,target=/root/.cache \
-  pip install uv
+RUN pip install uv
 
-# Copy dependency definition files  
-COPY pyproject.toml uv.lock README.md ./
+# Copy dependency definition files
+COPY pyproject.toml uv.lock ./
 
 
 # ==============================================================================
@@ -38,8 +37,7 @@ RUN --mount=type=cache,target=/root/.cache \
 FROM base as prod-deps
 
 # Install only production dependencies
-RUN --mount=type=cache,target=/root/.cache \
-  uv sync --no-dev
+RUN uv sync --no-dev
 
 
 

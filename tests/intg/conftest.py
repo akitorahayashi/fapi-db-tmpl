@@ -1,21 +1,11 @@
 """Shared pytest fixtures for the fapi-db-tmpl project."""
 
 import pytest
-from fastapi import FastAPI
-from httpx import ASGITransport, AsyncClient
-
-from src.fapi_db_tmpl.main import app as fastapi_app
 
 
-@pytest.fixture()
-def app() -> FastAPI:
-    """Return the FastAPI application under test."""
-    return fastapi_app
-
-
-@pytest.fixture()
-async def async_client(app: FastAPI) -> AsyncClient:
-    """Provide an async HTTP client for exercising the API."""
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://testserver") as client:
-        yield client
+@pytest.fixture(autouse=True)
+def mock_env_for_integration_tests(monkeypatch):
+    """Set up environment variables for all integration tests."""
+    # Use mock implementations to avoid real network calls
+    monkeypatch.setenv("USE_SQLITE", "true")
+    monkeypatch.setenv("USE_MOCK_GREETING", "true")

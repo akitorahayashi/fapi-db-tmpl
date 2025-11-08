@@ -1,5 +1,5 @@
 from dev.mocks.services.mock_greeting_service import MockGreetingService
-from src.fapi_db_tmpl.api.v1.services.greeting_service import GreetingService
+from src.fapi_db_tmpl.services.greeting_service import GreetingService
 
 
 def test_greeting_service_returns_expected_message():

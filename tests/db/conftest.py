@@ -1,92 +1,56 @@
+"""Database-specific test fixtures."""
+
 import os
-from typing import AsyncGenerator, Generator
+from collections.abc import AsyncGenerator, Generator
 
 import pytest
-from dotenv import load_dotenv
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import create_engine
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session, sessionmaker
-
-from src.fapi_db_tmpl.config import db_settings
-from src.fapi_db_tmpl.db.database import Base, create_db_session, get_engine
-from src.fapi_db_tmpl.main import app
-
-# Load .env and determine USE_SQLITE flag
-load_dotenv()
-settings = db_settings
-USE_SQLITE = settings.use_sqlite
-
-
-@pytest.fixture(autouse=True)
-def setup_db_test(monkeypatch):
-    """Set environment variables for db tests.
-
-    Note: USE_SQLITE is passed from justfile, so not set here.
-    """
-    # USE_SQLITE is passed from justfile, so not set here
-    # monkeypatch.setenv("USE_MOCK_SERVICE_A", "true")
 
 
 @pytest.fixture(scope="session")
-def db_engine():
-    """
-    Fixture that provides DB engine for the entire test session.
-    USE_SQLITE=true case (sqlt-test):
-        - Creates all tables (create_all) for SQLite DB and returns engine.
-        - Drops all tables (drop_all) at session end.
-    USE_SQLITE=false case (pstg-test):
-        - Returns engine for PostgreSQL migrated by entrypoint.sh.
-        - (Does not create/drop tables)
-    """
-    # Get engine initialized by application logic
-    engine = get_engine()
+def db_url() -> Generator[str, None, None]:
+    use_sqlite = os.environ.get("USE_SQLITE", "true").lower() == "true"
+    if use_sqlite:
+        sqlite_url = "sqlite:///./test_db.sqlite3"
+        yield sqlite_url
+        if os.path.exists("./test_db.sqlite3"):
+            os.remove("./test_db.sqlite3")
+    else:
+        from testcontainers.postgres import PostgresContainer
 
-    if USE_SQLITE:
-        # For SQLite mode, create all tables from models before tests
-        Base.metadata.create_all(bind=engine)
-
-    yield engine
-
-    if USE_SQLITE:
-        # For SQLite mode, drop all tables after tests
-        Base.metadata.drop_all(bind=engine)
-        # Remove the SQLite file
-        sqlite_file_path = "test_db.sqlite3"
-        if os.path.exists(sqlite_file_path):
-            os.remove(sqlite_file_path)
-
-    # For PostgreSQL mode, DB is managed by container so do nothing
-    engine.dispose()
+        with PostgresContainer("postgres:16-alpine") as pg:
+            # If needed, run alembic migrations here
+            async_url = (
+                make_url(pg.get_connection_url())
+                .render_as_string(hide_password=False)
+                .replace("psycopg2", "psycopg")
+            )
+            yield async_url
 
 
 @pytest.fixture
-def db_session(db_engine) -> Generator[Session, None, None]:
-    """
-    Provides a transaction-scoped session for each test function.
-    Tests run within transactions and are rolled back on completion,
-    ensuring DB state independence between tests.
-    """
-    # Depend on db_engine fixture and share the initialized engine
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=db_engine)
-    db = SessionLocal()
-
-    # Override FastAPI app's DI (get_db) with this test session
-    app.dependency_overrides[create_db_session] = lambda: db
-
+async def db_session(db_url: str) -> AsyncGenerator[Session, None]:
+    engine = create_engine(db_url)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    session = SessionLocal()
     try:
-        yield db
+        yield session
     finally:
-        db.rollback()  # Rollback all changes
-        db.close()
-        app.dependency_overrides.pop(create_db_session, None)
+        session.close()
 
 
 @pytest.fixture
 async def client(db_session: Session) -> AsyncGenerator[AsyncClient, None]:
-    """
-    Creates httpx.AsyncClient configured for database-dependent tests.
-    (Depends on db_session fixture to ensure DI override is applied)
-    """
+    from src.fapi_db_tmpl.api.main import app
+
+    # If needed, override DB session dependency here
+    from src.fapi_db_tmpl.db.database import create_db_session
+
+    app.dependency_overrides[create_db_session] = lambda: db_session
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
-    ) as c:
-        yield c
+    ) as client:
+        yield client

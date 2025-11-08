@@ -4,16 +4,12 @@
 
 set dotenv-load
 
-PROJECT_NAME := env("FAPI_TEMPL_PROJECT_NAME", "fastapi-tmpl")
+PROJECT_NAME := env("FAPI_DB_TMPL_PROJECT_NAME", "fastapi-tmpl")
 POSTGRES_IMAGE := env("POSTGRES_IMAGE", "postgres:16-alpine")
 
 DEV_PROJECT_NAME := PROJECT_NAME + "-dev"
-PROD_PROJECT_NAME := PROJECT_NAME + "-prod"
-TEST_PROJECT_NAME := PROJECT_NAME + "-test"
 
-PROD_COMPOSE := "docker compose -f docker-compose.yml --project-name " + PROD_PROJECT_NAME
-DEV_COMPOSE  := "docker compose -f docker-compose.yml -f docker-compose.dev.override.yml --project-name " + DEV_PROJECT_NAME
-TEST_COMPOSE := "docker compose -f docker-compose.yml -f docker-compose.test.override.yml --project-name " + TEST_PROJECT_NAME
+DEV_COMPOSE  := "docker compose -f docker-compose.yml --project-name " + DEV_PROJECT_NAME
 
 # default target
 default: help
@@ -60,16 +56,6 @@ up:
 down:
     @echo "Shutting down development services..."
     @{{DEV_COMPOSE}} down --remove-orphans
-
-# Start all production-like containers
-up-prod:
-    @echo "Starting up production-like services..."
-    @{{PROD_COMPOSE}} up -d --build --pull always --remove-orphans
-
-# Stop and remove all production-like containers
-down-prod:
-    @echo "Shutting down production-like services..."
-    @{{PROD_COMPOSE}} down --remove-orphans
 
 # Rebuild and restart API container only
 rebuild:
@@ -125,9 +111,9 @@ intg-test:
 
 # Run all Docker-based tests
 docker-test:
-  @just build-test
-  @just psql-test
-  @just e2e-test
+    @just build-test
+    @just psql-test
+    @just e2e-test
 
 # Build Docker image to verify build process
 build-test:
@@ -140,16 +126,16 @@ build-test:
 # Run database tests with PostgreSQL
 psql-test:
     @echo "🚀 Starting TEST containers for database test..."
-    @USE_SQLITE=false {{TEST_COMPOSE}} up -d --build
-    @echo "Running database tests..."
-    -USE_SQLITE=false {{TEST_COMPOSE}} exec fapi-db-tmpl pytest tests/db
-    @echo "🔴 Stopping TEST containers..."
-    @USE_SQLITE=false {{TEST_COMPOSE}} down
+    @USE_SQLITE=false uv run pytest tests/db
 
-# Run e2e tests against containerized application stack
+# Run e2e tests against application with PostgreSQL
 e2e-test:
+    @echo "🚀 Building temporary image for e2e tests..."
+    @docker build --target development -t fapi-db-tmpl-e2e:latest .
     @echo "🚀 Running e2e tests..."
     @USE_SQLITE=false uv run pytest tests/e2e
+    @echo "🧹 Cleaning up e2e test image..."
+    -@docker rmi fapi-db-tmpl-e2e:latest 2>/dev/null || true
 
 # ==============================================================================
 # CLEANUP

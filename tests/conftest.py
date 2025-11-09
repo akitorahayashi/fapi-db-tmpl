@@ -41,8 +41,8 @@ def db_engine(request: pytest.FixtureRequest) -> Generator[Any, None, None]:
     """
     Fixture that provides DB engine for the entire test session.
 
-    USE_SQLITE=true: Uses SQLite for fast, isolated testing
-    USE_SQLITE=false: Uses PostgreSQL container for realistic testing
+    FAPI_DB_TMPL_USE_SQLITE=true: Uses SQLite for fast, isolated testing
+    FAPI_DB_TMPL_USE_SQLITE=false: Uses PostgreSQL container for realistic testing
     """
     (
         create_engine,
@@ -53,7 +53,7 @@ def db_engine(request: pytest.FixtureRequest) -> Generator[Any, None, None]:
         app,
     ) = _get_db_imports()
 
-    if os.environ.get("USE_SQLITE", "true").lower() == "true":
+    if os.environ.get("FAPI_DB_TMPL_USE_SQLITE", "true").lower() == "true":
         # SQLite case - fast, file-based database
         engine = create_engine(
             f"sqlite:///{SQLITE_TEST_DB_PATH}",

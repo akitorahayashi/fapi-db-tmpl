@@ -9,7 +9,7 @@ class DBSettings(BaseSettings):
 
     use_sqlite: bool = Field(
         default=True,
-        alias="USE_SQLITE",
+        alias="FAPI_DB_TMPL_USE_SQLITE",
         title="Use SQLite",
         description="Whether to use SQLite database instead of PostgreSQL.",
     )
@@ -56,7 +56,7 @@ class DBSettings(BaseSettings):
     @model_validator(mode="after")
     def _check_postgres_db(self) -> "DBSettings":
         if not self.use_sqlite and not self.postgres_db:
-            raise ValueError("POSTGRES_DB must be set when USE_SQLITE is False.")
+            raise ValueError("POSTGRES_DB must be set when FAPI_DB_TMPL_USE_SQLITE is False.")
         return self
 
     @computed_field

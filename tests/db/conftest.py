@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 @pytest.fixture(scope="session")
 def db_url() -> Generator[str, None, None]:
-    use_sqlite = os.environ.get("USE_SQLITE", "true").lower() == "true"
+    use_sqlite = os.environ.get("FAPI_DB_TMPL_USE_SQLITE", "true").lower() == "true"
     if use_sqlite:
         sqlite_url = "sqlite:///./test_db.sqlite3"
         yield sqlite_url

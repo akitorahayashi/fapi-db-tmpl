@@ -41,7 +41,7 @@ def api_image():
 @pytest.fixture(scope="session")
 def api_base_url(api_image, postgres_container, e2e_network):
     env = {
-        "USE_SQLITE": "false",
+        "FAPI_DB_TMPL_USE_SQLITE": "false",
         "POSTGRES_HOST": "db",
         "POSTGRES_USER": postgres_container.username,
         "POSTGRES_PASSWORD": postgres_container.password,

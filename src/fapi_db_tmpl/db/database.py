@@ -17,7 +17,7 @@ def _initialize_factory():
     Lazy initializer for the database engine and session factory.
     This prevents settings from being loaded at import time and is thread-safe.
 
-    It dynamically switches between PostgreSQL and SQLite based on USE_SQLITE env var.
+    It dynamically switches between PostgreSQL and SQLite based on FAPI_DB_TMPL_USE_SQLITE env var.
     """
     global _engine, _SessionLocal
     with _lock:

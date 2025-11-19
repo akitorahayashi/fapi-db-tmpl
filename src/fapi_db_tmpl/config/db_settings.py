@@ -56,11 +56,12 @@ class DBSettings(BaseSettings):
     @model_validator(mode="after")
     def _check_postgres_db(self) -> "DBSettings":
         if not self.use_sqlite and not self.postgres_db:
-            raise ValueError("POSTGRES_DB must be set when FAPI_DB_TMPL_USE_SQLITE is False.")
+            raise ValueError(
+                "POSTGRES_DB must be set when FAPI_DB_TMPL_USE_SQLITE is False."
+            )
         return self
 
     @computed_field
-    @property
     def DATABASE_URL(self) -> str:
         if self.use_sqlite:
             return "sqlite:///./test_db.sqlite3"

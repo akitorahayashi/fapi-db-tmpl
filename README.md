@@ -8,7 +8,7 @@ A production-ready FastAPI template with Docker, PostgreSQL, and comprehensive t
 - Docker containerization
 - PostgreSQL with Alembic migrations
 - Pytest with testcontainers
-- Code quality tools (Black, Ruff)
+- Code quality tools (Ruff, Mypy)
 - Development commands via justfile
 
 ## Quick Start
@@ -76,8 +76,8 @@ When tests fail, container logs are automatically included in the failure report
 | `just up` | Start development containers |
 | `just down` | Stop containers |
 | `just test` | Run all tests |
-| `just format` | Format code |
-| `just lint` | Lint code |
+| `just fix` | Format code |
+| `just check` | Lint code |
 | `just rebuild` | Rebuild API container |
 
 ## Project Structure

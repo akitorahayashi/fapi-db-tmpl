@@ -67,17 +67,18 @@ rebuild:
 # CODE QUALITY
 # ==============================================================================
 
-# Format code with black and ruff --fix
-format:
-    @echo "Formatting code with black and ruff..."
-    @uv run black .
+# Automatically format and fix code (Ruff)
+fix:
+    @echo "🔧 Formatting and fixing code..."
+    @uv run ruff format .
     @uv run ruff check . --fix
 
-# Lint code with black check and ruff
-lint:
-    @echo "Linting code with black check and ruff..."
-    @uv run black --check .
+# Run static checks (Ruff, Mypy)
+check:
+    @echo "🧐 Running static checks..."
+    @uv run ruff format --check .
     @uv run ruff check .
+    @uv run mypy --explicit-package-bases src
 
 # ==============================================================================
 # TESTING

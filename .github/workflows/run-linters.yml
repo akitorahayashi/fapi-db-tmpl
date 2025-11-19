@@ -16,4 +16,4 @@ jobs:
           dependencies-command: 'uv sync --only-group dev --frozen'
 
       - name: Run Linters
-        run: just lint
+        run: just check

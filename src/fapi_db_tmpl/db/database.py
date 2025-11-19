@@ -1,18 +1,19 @@
 import threading
+from typing import Generator
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 from fapi_db_tmpl.config import db_settings
 
 # --- Lazy Initialization for Database Engine and Session Factory ---
 
-_engine = None
-_SessionLocal = None
+_engine: Engine | None = None
+_SessionLocal: sessionmaker[Session] | None = None
 _lock = threading.Lock()
 
 
-def _initialize_factory():
+def _initialize_factory() -> None:
     """
     Lazy initializer for the database engine and session factory.
     This prevents settings from being loaded at import time and is thread-safe.
@@ -42,16 +43,17 @@ def _initialize_factory():
             )
 
 
-def create_db_session():
+def create_db_session() -> Session:
     """
     Creates a new SQLAlchemy session.
     For direct use in places like middleware or background tasks.
     """
     _initialize_factory()
+    assert _SessionLocal is not None
     return _SessionLocal()
 
 
-def get_db():
+def get_db() -> Generator[Session, None, None]:
     """
     FastAPI dependency that provides a database session and ensures it's closed.
     """
@@ -68,6 +70,7 @@ Base = declarative_base()
 
 
 # Make Base and Engine accessible to external modules (especially test fixtures)
-def get_engine():
+def get_engine() -> Engine:
     _initialize_factory()
+    assert _engine is not None
     return _engine

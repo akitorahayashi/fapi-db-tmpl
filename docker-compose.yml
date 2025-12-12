@@ -18,7 +18,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: development
+      target: ${FAPI_DB_TMPL_BUILD_TARGET:-development}
     ports:
       - "${FAPI_DB_TMPL_HOST_BIND_IP}:${FAPI_DB_TMPL_DEV_PORT}:8000"
     depends_on:
@@ -27,7 +27,6 @@ services:
     env_file:
       - .env
     environment:
-      - USE_SQLITE=false
       - POSTGRES_DB=${POSTGRES_DEV_DB}
     volumes:
       - .:/app
@@ -43,5 +42,5 @@ services:
 volumes:
   postgres-db:
     driver: local
-    name: ${FAPI_TEMPL_PROJECT_NAME}-postgres-db
+    name: ${FAPI_DB_TMPL_PROJECT_NAME}-postgres-db
     external: false

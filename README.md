@@ -58,9 +58,9 @@ just e2e-test     # production-like E2E tests (PostgreSQL)
 #### Test Architecture
 
 - **Unit Tests** (`tests/unit/`): Test individual components in isolation.
-- **Database Tests** (`tests/db/`): Test database operations using PostgreSQL via Testcontainers.
 - **Integration Tests** (`tests/intg/`): Test API endpoints with DI overrides using in-process FastAPI and ASGITransport.
-- **E2E Tests** (`tests/e2e/`): Test complete user workflows against dockerized API + PostgreSQL.
+- **API Tests** (`tests/api/`): Test the dockerized API (development build) with PostgreSQL and mock greeting service enabled.
+- **E2E Tests** (`tests/e2e/`): Test complete user workflows against the production-target dockerized API + PostgreSQL.
 
 ## API Endpoints
 
@@ -90,9 +90,9 @@ src/fapi_db_tmpl/
 
 tests/            # Comprehensive test suite
 ├── unit/         # Unit tests
-├── db/           # Database integration tests
-├── intg/         # Integration tests
-└── e2e/          # End-to-end tests
+├── intg/         # Integration tests (in-process API)
+├── api/          # Dockerized API tests (development target)
+└── e2e/          # End-to-end tests (production-like)
 
 alembic/          # Database migrations
 ```

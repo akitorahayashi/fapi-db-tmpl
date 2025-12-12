@@ -17,8 +17,7 @@ def _initialize_factory() -> None:
     """
     Lazy initializer for the database engine and session factory.
     This prevents settings from being loaded at import time and is thread-safe.
-
-    It dynamically switches between PostgreSQL and SQLite based on FAPI_DB_TMPL_USE_SQLITE env var.
+    Uses PostgreSQL as the single database backend.
     """
     global _engine, _SessionLocal
     with _lock:
@@ -27,16 +26,8 @@ def _initialize_factory() -> None:
 
             db_url = settings.DATABASE_URL
 
-            if settings.use_sqlite:
-                # Use SQLite (for sqlt-test or local execution)
-                # SQLite requires check_same_thread: False for FastAPI usage
-                _engine = create_engine(
-                    db_url, connect_args={"check_same_thread": False}
-                )
-
-            else:
-                # Use PostgreSQL (for pstg-test or production/dev containers)
-                _engine = create_engine(db_url, pool_pre_ping=True)
+            # PostgreSQL engine used for all environments (tests, dev, prod)
+            _engine = create_engine(db_url, pool_pre_ping=True)
 
             _SessionLocal = sessionmaker(
                 autocommit=False, autoflush=False, bind=_engine

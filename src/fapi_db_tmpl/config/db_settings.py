@@ -5,14 +5,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class DBSettings(BaseSettings):
     """
     Database settings loaded from environment variables.
+    Always uses PostgreSQL.
     """
-
-    use_sqlite: bool = Field(
-        default=True,
-        alias="FAPI_DB_TMPL_USE_SQLITE",
-        title="Use SQLite",
-        description="Whether to use SQLite database instead of PostgreSQL.",
-    )
 
     # PostgreSQL settings
     postgres_host: str = Field(
@@ -55,15 +49,10 @@ class DBSettings(BaseSettings):
 
     @model_validator(mode="after")
     def _check_postgres_db(self) -> "DBSettings":
-        if not self.use_sqlite and not self.postgres_db:
-            raise ValueError(
-                "POSTGRES_DB must be set when FAPI_DB_TMPL_USE_SQLITE is False."
-            )
+        if not self.postgres_db:
+            raise ValueError("POSTGRES_DB must be set for PostgreSQL.")
         return self
 
     @computed_field
     def DATABASE_URL(self) -> str:
-        if self.use_sqlite:
-            return "sqlite:///./test_db.sqlite3"
-        else:
-            return f"postgresql+psycopg://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+        return f"postgresql+psycopg://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"

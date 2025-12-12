@@ -44,22 +44,21 @@ This project uses advanced testcontainers features for reliable, isolated testin
 # Run all tests (local + dockerized)
 just test
 
-# Local tests (no Docker)
-just local-test   # unit + db (SQLite) + intg
+# Local tests
+just local-test   # unit + intg (no external DB)
 just unit-test    # unit tests only
-just sqlt-test    # database tests with SQLite
 just intg-test    # API integration tests (in-process FastAPI)
 
-# Docker-based tests (PostgreSQL + containers)
+# Docker-based tests (PostgreSQL + containers via testcontainers)
 just docker-test  # api-test + e2e-test
-just api-test     # dockerized API tests (development target)
+just api-test     # dockerized API tests (development target, PostgreSQL)
 just e2e-test     # production-like E2E tests (PostgreSQL)
 ```
 
 #### Test Architecture
 
 - **Unit Tests** (`tests/unit/`): Test individual components in isolation.
-- **Database Tests** (`tests/db/`): Test database operations; run with SQLite by default, and PostgreSQL under Docker.
+- **Database Tests** (`tests/db/`): Test database operations using PostgreSQL via Testcontainers.
 - **Integration Tests** (`tests/intg/`): Test API endpoints with DI overrides using in-process FastAPI and ASGITransport.
 - **E2E Tests** (`tests/e2e/`): Test complete user workflows against dockerized API + PostgreSQL.
 

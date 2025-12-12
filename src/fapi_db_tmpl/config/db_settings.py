@@ -1,4 +1,4 @@
-from pydantic import Field, computed_field, model_validator
+from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -34,7 +34,7 @@ class DBSettings(BaseSettings):
         description="Password for the PostgreSQL user.",
     )
     postgres_db: str = Field(
-        default="",
+        default="fapi-db-tmpl-dev",
         alias="POSTGRES_DB",
         title="PostgreSQL Database",
         description="Name of the PostgreSQL database to connect to.",
@@ -46,12 +46,6 @@ class DBSettings(BaseSettings):
         extra="ignore",
         populate_by_name=True,
     )
-
-    @model_validator(mode="after")
-    def _check_postgres_db(self) -> "DBSettings":
-        if not self.postgres_db:
-            raise ValueError("POSTGRES_DB must be set for PostgreSQL.")
-        return self
 
     @computed_field
     def DATABASE_URL(self) -> str:

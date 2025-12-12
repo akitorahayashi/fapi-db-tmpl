@@ -21,4 +21,4 @@ class TestE2EAPI:
         """End-to-end validation of the greeting endpoint."""
         response = await async_client.get("/greetings/E2E")
         assert response.status_code == 200
-        assert response.json() == {"message": "[mock] Hello, E2E"}
+        assert response.json() == {"message": "Hello, E2E"}

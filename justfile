@@ -138,16 +138,16 @@ docker-test:
 # Run dockerized API tests against development target (PostgreSQL)
 api-test:
     @echo "🚀 Building image for dockerized API tests (development target, PostgreSQL)..."
-    @docker build --target development -t fapi-db-tmpl-e2e:latest .
+    @docker build --target development -t fapi-db-tmpl-e2e:dev .
     @echo "🚀 Running dockerized API tests (development target, PostgreSQL)..."
-    @FAPI_DB_TMPL_USE_SQLITE=false FAPI_DB_TMPL_BUILD_TARGET=development FAPI_DB_TMPL_HOST_PORT=0 uv run pytest tests/e2e
+    @FAPI_DB_TMPL_E2E_IMAGE=fapi-db-tmpl-e2e:dev FAPI_DB_TMPL_USE_SQLITE=false FAPI_DB_TMPL_BUILD_TARGET=development FAPI_DB_TMPL_HOST_PORT=0 uv run pytest tests/e2e
 
 # Run e2e tests against production-like target (PostgreSQL)
 e2e-test:
     @echo "🚀 Building image for production acceptance tests (PostgreSQL)..."
-    @docker build --target production -t fapi-db-tmpl-e2e:latest .
+    @docker build --target production -t fapi-db-tmpl-e2e:prod .
     @echo "🚀 Running production acceptance tests (PostgreSQL)..."
-    @FAPI_DB_TMPL_USE_SQLITE=false FAPI_DB_TMPL_BUILD_TARGET=production FAPI_DB_TMPL_HOST_PORT=0 uv run pytest tests/e2e
+    @FAPI_DB_TMPL_E2E_IMAGE=fapi-db-tmpl-e2e:prod FAPI_DB_TMPL_USE_SQLITE=false FAPI_DB_TMPL_BUILD_TARGET=production FAPI_DB_TMPL_HOST_PORT=0 uv run pytest tests/e2e
 
 # ==============================================================================
 # CLEANUP

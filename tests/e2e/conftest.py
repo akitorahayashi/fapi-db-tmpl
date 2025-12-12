@@ -35,7 +35,7 @@ def postgres_container(e2e_network):
 @pytest.fixture(scope="session")
 def api_image():
     # Use the temporary image built for e2e tests
-    return "fapi-db-tmpl-e2e:latest"
+    return os.environ.get("FAPI_DB_TMPL_E2E_IMAGE", "fapi-db-tmpl-e2e:latest")
 
 
 @pytest.fixture(scope="session")

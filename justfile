@@ -94,7 +94,7 @@ fix:
     @uv run ruff check . --fix
 
 # Run static checks (Ruff, Mypy)
-check:
+check: fix
     @echo "🔍 Running static checks..."
     @uv run ruff format --check .
     @uv run ruff check .

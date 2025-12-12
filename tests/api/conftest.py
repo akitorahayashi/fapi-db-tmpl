@@ -78,4 +78,3 @@ def api_base_url(
 async def async_client(api_base_url: str) -> AsyncGenerator[httpx.AsyncClient, None]:
     async with httpx.AsyncClient(base_url=api_base_url) as client:
         yield client
-

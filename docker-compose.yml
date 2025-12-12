@@ -18,7 +18,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: development
+      target: ${FAPI_DB_TMPL_BUILD_TARGET:-development}
     ports:
       - "${FAPI_DB_TMPL_HOST_BIND_IP}:${FAPI_DB_TMPL_DEV_PORT}:8000"
     depends_on:

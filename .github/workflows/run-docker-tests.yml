@@ -4,14 +4,21 @@ on:
   workflow_call:
 
 jobs:
-  run-docker-tests:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test_target: [api, e2e]
+      fail-fast: false
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup environment
         uses: ./.github/actions/setup
+        with:
+          dependencies-command: 'uv sync --frozen'
 
-      - name: Run docker tests
-        run: just docker-test
+      - name: Run tests
+        run: just ${{ matrix.test_target }}-test

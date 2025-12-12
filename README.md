@@ -19,7 +19,7 @@ A production-ready FastAPI template with Docker, PostgreSQL, and comprehensive t
 just setup
 ```
 
-### Run
+### Run (Docker Development Stack)
 
 ```bash
 just up
@@ -41,27 +41,27 @@ This project uses advanced testcontainers features for reliable, isolated testin
 #### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (local + dockerized)
 just test
 
-# Run database tests only
-just test-db
+# Local tests (no Docker)
+just local-test   # unit + db (SQLite) + intg
+just unit-test    # unit tests only
+just sqlt-test    # database tests with SQLite
+just intg-test    # API integration tests (in-process FastAPI)
 
-# Run integration tests
-just test-intg
-
-# Run end-to-end tests
-just test-e2e
+# Docker-based tests (PostgreSQL + containers)
+just docker-test  # api-test + e2e-test
+just api-test     # dockerized API tests (development target)
+just e2e-test     # production-like E2E tests (PostgreSQL)
 ```
 
 #### Test Architecture
 
-- **Unit Tests** (`tests/unit/`): Test individual components in isolation
-- **Database Tests** (`tests/db/`): Test database operations with real PostgreSQL
-- **Integration Tests** (`tests/intg/`): Test API endpoints with mocked dependencies
-- **E2E Tests** (`tests/e2e/`): Test complete user workflows with full stack
-
-When tests fail, container logs are automatically included in the failure report for debugging.
+- **Unit Tests** (`tests/unit/`): Test individual components in isolation.
+- **Database Tests** (`tests/db/`): Test database operations; run with SQLite by default, and PostgreSQL under Docker.
+- **Integration Tests** (`tests/intg/`): Test API endpoints with DI overrides using in-process FastAPI and ASGITransport.
+- **E2E Tests** (`tests/e2e/`): Test complete user workflows against dockerized API + PostgreSQL.
 
 ## API Endpoints
 
